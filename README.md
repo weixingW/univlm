@@ -41,10 +41,15 @@ univlm/
 
 ### Installation
 
-1. Clone this repository:
+1. Clone this repository with all submodules:
 ```bash
-git clone https://github.com/yourusername/univlm.git
+git clone --recursive https://github.com/yourusername/univlm.git
 cd univlm
+```
+
+**Note:** If you already cloned without `--recursive`, you can initialize and update submodules with:
+```bash
+git submodule update --init --recursive
 ```
 
 2. Install dependencies for specific models (see individual README files in each subdirectory)
