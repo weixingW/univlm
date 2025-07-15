@@ -80,12 +80,4 @@ temp/
 *.tar.gz
 *.rar
 
-# Subdirectories with their own git repositories
-BLIP3o/
-Emu3/
-Janus/
-MMaDA/
-OmniGen2/
-Show-o/
-diffusers/
-transfusion-pytorch/ 
+# Note: Subdirectories are now tracked as git submodules 

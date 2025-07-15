@@ -1,0 +1,24 @@
+[submodule "BLIP3o"]
+	path = BLIP3o
+	url = https://github.com/JiuhaiChen/BLIP3o.git
+[submodule "Emu3"]
+	path = Emu3
+	url = https://github.com/baaivision/Emu3.git
+[submodule "Janus"]
+	path = Janus
+	url = https://github.com/deepseek-ai/Janus.git
+[submodule "MMaDA"]
+	path = MMaDA
+	url = https://github.com/Gen-Verse/MMaDA.git
+[submodule "OmniGen2"]
+	path = OmniGen2
+	url = https://github.com/VectorSpaceLab/OmniGen2.git
+[submodule "Show-o"]
+	path = Show-o
+	url = https://github.com/showlab/Show-o.git
+[submodule "diffusers"]
+	path = diffusers
+	url = https://github.com/huggingface/diffusers.git
+[submodule "transfusion-pytorch"]
+	path = transfusion-pytorch
+	url = https://github.com/lucidrains/transfusion-pytorch.git
