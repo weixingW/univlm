@@ -1,6 +1,6 @@
 [submodule "BLIP3o"]
 	path = BLIP3o
-	url = https://github.com/JiuhaiChen/BLIP3o.git
+	url = https://github.com/weixingW/BLIP3o.git
 [submodule "Emu3"]
 	path = Emu3
 	url = https://github.com/baaivision/Emu3.git
