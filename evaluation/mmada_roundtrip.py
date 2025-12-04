@@ -172,7 +172,7 @@ class MMaDARoundtripGenerator(RoundtripGenerator):
         # Return the first (and only) image
         return Image.fromarray(images[0])
     
-    def generate_caption_from_image(self, image: Image.Image, prompt: str = "Describe this image in detail.") -> str:
+    def generate_caption_from_image(self, image: Image.Image, prompt: str = "Describe this image in detail.", max_new_tokens: int = 128, steps: int = 128, block_length: int = 64, guidance_scale: float = 0.0) -> str:
         """Generate caption from image using MMaDA."""
         # Convert PIL image to tensor
         image_tensor = image_transform(image, resolution=512).to(self.device)
@@ -201,9 +201,10 @@ class MMaDARoundtripGenerator(RoundtripGenerator):
         with torch.no_grad():
             output_ids = self.model.mmu_generate(
                 input_ids, 
-                max_new_tokens=512,  # Reduced from 1024 for faster generation
-                steps=256,  # Reduced from 512 for faster generation
-                block_length=512  # Reduced from 1024 for faster generation
+                max_new_tokens=max_new_tokens,  # Reduced from 1024 for faster generation
+                steps=steps,  # Reduced from 512 for faster generation
+                block_length=block_length,  # Reduced from 1024 for faster generation
+                cfg_scale=guidance_scale
             )
         
         # Decode the generated text

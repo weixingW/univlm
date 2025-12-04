@@ -1,24 +1,54 @@
 #!/bin/bash
-#SBATCH --job-name=amber_all_models
-#SBATCH --output=amber_output/amber_all_models.out
-#SBATCH --gres=gpu:1
+#SBATCH -n 1
+#SBATCH --time=5-00:00:00
+#SBATCH --mem 200G
+#SBATCH --partition=aisc
+#SBATCH --gres=gpu:h100:1
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=200G
-#SBATCH -w fb10dl03
-#SBATCH --ntasks=1
-#SBATCH --time=10-00:00:00
+#SBATCH --partition=aisc
+#SBATCH --qos=aisc
+#SBATCH --account=aisc
+#SBATCH --ntasks-per-node=1
+#SBATCH --job-name=amber_mmada_guidance_0.0
+#SBATCH --output=/sc/home/weixing.wang/AISC/projects/univlm/amber_evaluation/slurm_output/amber_mmada_guidance_0.0.out
 
+# Get the absolute path to the script directory first, before changing directories
+SCRIPT_DIR="/sc/home/weixing.wang/AISC/projects/univlm/amber_evaluation"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# Debug: Print current working directory and script location
+echo "=== DEBUG INFO ==="
+echo "Current working directory: $(pwd)"
+echo "Script directory: ${SCRIPT_DIR}"
+echo "Repo root: ${REPO_ROOT}"
+echo "Script file: ${BASH_SOURCE[0]}"
+echo "SLURM_SUBMIT_DIR: ${SLURM_SUBMIT_DIR:-'not set'}"
+echo "SLURM_JOB_ID: ${SLURM_JOB_ID:-'not set'}"
+echo "=================="
 
+# Change to the amber_evaluation directory
+cd "${SCRIPT_DIR}"
+echo "Changed to directory: $(pwd)"
 
-cd ~/univlm/amber_evaluation/
+# Verify we're in the right place
+if [[ ! -f "${SCRIPT_DIR}/amber_generation.py" ]]; then
+    echo "ERROR: amber_generation.py not found in ${SCRIPT_DIR}"
+    echo "Current directory contents:"
+    ls -la
+    exit 1
+fi
+echo "Verified amber_generation.py exists at: ${SCRIPT_DIR}/amber_generation.py"
 
-source ~/.bashrc
+# Choose conda based on architecture
+if [[ $(uname -m) == "x86_64" ]]; then
+    source /sc/home/weixing.wang/miniconda3/etc/profile.d/conda.sh
+else
+    source /sc/home/weixing.wang/miniconda3_arm/etc/profile.d/conda.sh
+fi
 conda activate univlm
 
 
 
-set -euo pipefail
 
 # This script runs AMBER caption generation for all supported models using
 # univlm/amber_evaluation/amber_generation.py
@@ -41,16 +71,13 @@ set -euo pipefail
 #   SHOWO_MODEL_PATH    - Path to Show-o model
 #   SHOWO_CONFIG_PATH   - Path to Show-o YAML config
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
 # Defaults (override via env)
-: "${AMBER_IMAGE_DIR:="/mnt/ssd/AMBER/image"}"
+: "${AMBER_IMAGE_DIR:="/sc/home/weixing.wang/AISC/datasets/image"}"
 : "${AMBER_QUERY_FILE:="${SCRIPT_DIR}/data/query/query_all.json"}"
 : "${OUTPUT_DIR:="${SCRIPT_DIR}/outputs"}"
 : "${DEVICE:=0}"
 : "${SEED:=42}"
-: "${BLIP3O_MODEL_PATH:="~/.huggingface/BLIP3o-Model-8B"}"
+: "${BLIP3O_MODEL_PATH:="${HOME}/.huggingface"}"
 : "${MMADA_MODEL_PATH:="Gen-Verse/MMaDA-8B-Base"}"
 : "${EMU3_MODEL_PATH:="BAAI/Emu3-Chat"}"
 : "${OMNIGEN2_MODEL_PATH:="OmniGen2/OmniGen2"}"
@@ -58,8 +85,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 : "${SHOWO2_MODEL_PATH:="showlab/show-o2-7B"}"
 : "${SHOWO_MODEL_PATH:="showlab/show-o"}"
 
-: "${SHOWO2_CONFIG_PATH:="${REPO_ROOT}/configs/showo2.yaml"}"
-: "${SHOWO_CONFIG_PATH:="${REPO_ROOT}/configs/showo.yaml"}"
+: "${SHOWO2_CONFIG_PATH:="${REPO_ROOT}/configs/showo2_config.yaml"}"
+: "${SHOWO_CONFIG_PATH:="${REPO_ROOT}/configs/showo_config.yaml"}"
 
 mkdir -p "${OUTPUT_DIR}"
 
@@ -81,6 +108,13 @@ run_model() {
   fi
 
   echo "[RUN] ${model_type} -> ${output_file}"
+  echo "  Model path: ${model_path}"
+  echo "  Script dir: ${SCRIPT_DIR}"
+  echo "  Python script: ${SCRIPT_DIR}/amber_generation.py"
+  echo "  Query file: ${AMBER_QUERY_FILE}"
+  echo "  Image dir: ${AMBER_IMAGE_DIR}"
+  echo "  Current working directory: $(pwd)"
+  
   python -u "${SCRIPT_DIR}/amber_generation.py" "${model_path}" \
     --model_type "${model_type}" \
     --output_file "${output_file}" \
@@ -93,42 +127,35 @@ run_model() {
 }
 
 # BLIP3o
-: "${BLIP3O_MODEL_PATH:=}"
-run_model "blip3o" "${BLIP3O_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_blip3o.json"
+#run_model "blip3o" "${BLIP3O_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_blip3o.json"
 
 # MMaDA
-: "${MMADA_MODEL_PATH:=}"
-run_model "mmada" "${MMADA_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_mmada.json"
+#run_model "mmada" "${MMADA_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_mmada_128_guidance_6.0.json" --max_new_tokens 128 --steps 128 --block_length 64 --guidance_scale 6.0
+run_model "mmada" "${MMADA_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_mmada_128_guidance_0.0.json" --max_new_tokens 128 --steps 128 --block_length 64 --guidance_scale 0.0
+
 
 # EMU3 (prefer hub ids: BAAI/Emu3-Gen & BAAI/Emu3-Chat)
-: "${EMU3_MODEL_PATH:=BAAI/Emu3-Gen}"
-run_model "emu3" "${EMU3_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_emu3.json"
+# run_model "emu3" "${EMU3_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_emu3.json"
 
 # OmniGen2
-: "${OMNIGEN2_MODEL_PATH:=}"
-run_model "omnigen2" "${OMNIGEN2_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_omnigen2.json"
+# run_model "omnigen2" "${OMNIGEN2_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_omnigen2.json"
 
 # Janus Pro
-: "${JANUSPRO_MODEL_PATH:=}"
-run_model "januspro" "${JANUSPRO_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_januspro.json"
+# run_model "januspro" "${JANUSPRO_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_januspro.json"
 
 # Show-o2 (requires config)
-: "${SHOWO2_MODEL_PATH:=showlab/show-o2-7b}"
-: "${SHOWO2_CONFIG_PATH:=}"
-if [[ -n "${SHOWO2_MODEL_PATH}" && -n "${SHOWO2_CONFIG_PATH}" && -f "${SHOWO2_CONFIG_PATH}" ]]; then
-  run_model "showo2" "${SHOWO2_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_showo2.json" --config_path "${SHOWO2_CONFIG_PATH}"
-else
-  echo "[SKIP] showo2: SHOWO2_MODEL_PATH/SHOWO2_CONFIG_PATH not set or config missing"
-fi
+#if [[ -n "${SHOWO2_MODEL_PATH}" && -n "${SHOWO2_CONFIG_PATH}" && -f "${SHOWO2_CONFIG_PATH}" ]]; then
+#  run_model "showo2" "${SHOWO2_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_showo2.json" --config_path "${SHOWO2_CONFIG_PATH}"
+#else
+#  echo "[SKIP] showo2: SHOWO2_MODEL_PATH/SHOWO2_CONFIG_PATH not set or config missing"
+#fi
 
 # Show-o (requires config)
-: "${SHOWO_MODEL_PATH:=}"
-: "${SHOWO_CONFIG_PATH:=}"
-if [[ -n "${SHOWO_MODEL_PATH}" && -n "${SHOWO_CONFIG_PATH}" && -f "${SHOWO_CONFIG_PATH}" ]]; then
-  run_model "showo" "${SHOWO_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_showo.json" --config_path "${SHOWO_CONFIG_PATH}"
-else
-  echo "[SKIP] showo: SHOWO_MODEL_PATH/SHOWO_CONFIG_PATH not set or config missing"
-fi
+#if [[ -n "${SHOWO_MODEL_PATH}" && -n "${SHOWO_CONFIG_PATH}" && -f "${SHOWO_CONFIG_PATH}" ]]; then
+#  run_model "showo" "${SHOWO_MODEL_PATH}" "${OUTPUT_DIR}/amber_out_showo.json" --config_path "${SHOWO_CONFIG_PATH}"
+#else
+#  echo "[SKIP] showo: SHOWO_MODEL_PATH/SHOWO_CONFIG_PATH not set or config missing"
+#fi
 
 echo "All AMBER runs attempted."
 

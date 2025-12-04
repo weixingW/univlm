@@ -18,6 +18,7 @@ def get_args():
     parser.add_argument("--metrics", type=str, default='data/metrics.txt')
     parser.add_argument("--similarity_score", type=float, default=0.8)
     parser.add_argument('--evaluation_type', choices=['a', 'g', 'd', 'de', 'da', 'dr'], help='a: all tasks and dimensions    g: generative task    d: descriminative task    de, da, dr: existence, attribute, relation')
+    parser.add_argument('--output_file', type=str, default='outputs/metrics.json')
     args = parser.parse_args()
     return args
 
@@ -255,11 +256,22 @@ def main(args):
                     else:
                         metrics['asso_qa_ans_no_score'] += 1
 
+    # Initialize results dictionary to store all metrics
+    results = {}
+    
     if dimension['g']:
         CHAIR = round(metrics['chair_score'] / metrics['chair_num'] * 100, 1)
         Cover = round(metrics['safe_cover_score'] / metrics['safe_cover_num'] * 100, 1)
         Ha = round(metrics['hallu_cover_score'] / metrics['hallu_cover_num'] * 100, 1)
         Ha_p = round(100 - metrics['non_hallu_score'] / metrics['non_hallu_num'] * 100, 1)
+        
+        results['generative'] = {
+            'CHAIR': CHAIR,
+            'Cover': Cover,
+            'Hal': Ha_p,
+            'Cog': Ha
+        }
+        
         print("Generative Task:")
         print("CHAIR:\t\t", CHAIR)
         print("Cover:\t\t", Cover)
@@ -271,6 +283,14 @@ def main(args):
         Precision = round(metrics['qa_ans_no_score'] / metrics['qa_ans_no_num'] * 100, 1)
         Recall = round(metrics['qa_no_score'] / metrics['qa_no_num'] * 100, 1)
         F1 = round(2 * (Precision/100) * (Recall/100) / ((Precision/100) + (Recall/100) + 0.0001) * 100, 1)
+        
+        results['discriminative'] = {
+            'Accuracy': Accuracy,
+            'Precision': Precision,
+            'Recall': Recall,
+            'F1': F1
+        }
+        
         print("Descriminative Task:")
         print("Accuracy:\t", Accuracy)
         print("Precision:\t", Precision)
@@ -282,6 +302,14 @@ def main(args):
         hallucination_Precision = round(metrics['ha_qa_ans_no_score'] / metrics['ha_qa_ans_no_num'] * 100, 1)
         hallucination_Recall = round(metrics['ha_qa_no_score'] / metrics['ha_qa_no_num'] * 100, 1)
         hallucination_F1 = round(2 * (hallucination_Precision/100) * (hallucination_Recall/100) / ((hallucination_Precision/100) + (hallucination_Recall/100) + 0.001) * 100, 1)
+        
+        results['existence'] = {
+            'Accuracy': hallucination_Accuracy,
+            'Precision': hallucination_Precision,
+            'Recall': hallucination_Recall,
+            'F1': hallucination_F1
+        }
+        
         print("Exsitence:")
         print("Accuracy:\t", hallucination_Accuracy)
         print("Precision:\t", hallucination_Precision)
@@ -305,6 +333,34 @@ def main(args):
         action_Precision = round(metrics['aa_qa_ans_no_score'] / metrics['aa_qa_ans_no_num'] * 100, 1)
         action_Recall = round(metrics['aa_qa_no_score'] / metrics['aa_qa_no_num'] * 100, 1)
         action_F1 = round(2 * (action_Precision/100) * (action_Recall/100) / ((action_Precision/100) + (action_Recall/100) + 0.0001) * 100, 1)
+        
+        results['attribute'] = {
+            'overall': {
+                'Accuracy': attr_Accuracy,
+                'Precision': attr_Precision,
+                'Recall': attr_Recall,
+                'F1': attr_F1
+            },
+            'state': {
+                'Accuracy': state_Accuracy,
+                'Precision': state_Precision,
+                'Recall': state_Recall,
+                'F1': state_F1
+            },
+            'number': {
+                'Accuracy': number_Accuracy,
+                'Precision': number_Precision,
+                'Recall': number_Recall,
+                'F1': number_F1
+            },
+            'action': {
+                'Accuracy': action_Accuracy,
+                'Precision': action_Precision,
+                'Recall': action_Recall,
+                'F1': action_F1
+            }
+        }
+        
         print("Attribute:")
         print("Accuracy:\t", attr_Accuracy)
         print("Precision:\t", attr_Precision)
@@ -331,11 +387,28 @@ def main(args):
         relation_Precision = round(metrics['asso_qa_ans_no_score'] / metrics['asso_qa_ans_no_num'] * 100, 1)
         relation_Recall = round(metrics['asso_qa_no_score'] / metrics['asso_qa_no_num'] * 100, 1)
         relation_F1 = round(2 * (relation_Precision/100) * (relation_Recall/100) / ((relation_Precision/100) + (relation_Recall/100) + 0.0001) * 100, 1)
+        
+        results['relation'] = {
+            'Accuracy': relation_Accuracy,
+            'Precision': relation_Precision,
+            'Recall': relation_Recall,
+            'F1': relation_F1
+        }
+        
         print("Relation:")
         print("Accuracy:\t", relation_Accuracy)
         print("Precision:\t", relation_Precision)
         print("Recall:\t\t", relation_Recall)
         print("F1:\t\t", relation_F1)
+    
+    # Save results to JSON file
+    import os
+    os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
+    
+    with open(args.output_file, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    
+    print(f"\nResults saved to: {args.output_file}")
 
 if __name__ == "__main__":
     args = get_args()

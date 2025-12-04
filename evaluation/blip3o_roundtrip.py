@@ -45,7 +45,6 @@ class BLIP3oRoundtripGenerator(RoundtripGenerator):
         self.tokenizer, self.multi_model, self.context_len = load_pretrained_model(
             model_path, None, model_name
         )
-         
         # Load diffusion pipeline
         diffusion_path = model_path + "/diffusion-decoder"
         self.pipe = DiffusionPipeline.from_pretrained(

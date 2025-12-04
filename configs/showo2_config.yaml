@@ -12,7 +12,7 @@ model:
     weight_type: "float32"
     vae_model:
         type: "wan21"
-        pretrained_model_path: "/home/weixing/.huggingface/Wan2.1_VAE.pth"
+        pretrained_model_path: "/sc/home/weixing.wang/.huggingface/Wan2.1_VAE.pth"
 
     showo:
         model_name: "Showo2"

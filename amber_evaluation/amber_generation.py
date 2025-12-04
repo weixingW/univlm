@@ -82,6 +82,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--image_dir", type=str, default="/hpi/fs00/share/fg-meinel/weixing.wang/datasets/AMBER/image/", help="Directory containing AMBER images")
     parser.add_argument("--output_file", type=str, required=True, help="Path to write amber_out.json style results")
     parser.add_argument("--skip_existing", action="store_true", help="Skip IDs already present in output file")
+    parser.add_argument("--max_new_tokens", type=int, default=128, help="Maximum new tokens")
+    parser.add_argument("--steps", type=int, default=128, help="Steps")
+    parser.add_argument("--block_length", type=int, default=64, help="Block length")
+    parser.add_argument("--guidance_scale", type=float, default=0.0, help="Guidance scale")
     return parser.parse_args()
 
 
@@ -109,7 +113,7 @@ def main() -> None:
             continue
 
         image = Image.open(image_path).convert("RGB")
-        response = generator.generate_caption_from_image(image, prompt=query)
+        response = generator.generate_caption_from_image(image, prompt=query, max_new_tokens=args.max_new_tokens, steps=args.steps, block_length=args.block_length, guidance_scale=args.guidance_scale)
 
         # Yes/No extraction for VQA-style subset (match example behavior)
         if amber_id >= 1005:
