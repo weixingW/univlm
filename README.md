@@ -4,46 +4,30 @@ A comprehensive collection of vision-language models and implementations for mul
 
 ## Overview
 
-This repository contains implementations and evaluations of various state-of-the-art vision-language models including:
+This repository contains implementations and evaluations of various state-of-the-art unified vision-language models including:
 
-- **BLIP3o** - BLIP-3 with Omni capabilities
-- **Show-o** - Show and Tell with Omni features
-- **Janus** - Multi-modal model implementation
-- **OmniGen2** - Omni Generation 2
-- **Emu3** - Enhanced Multimodal Understanding
-- **MMaDA** - Multi-Modal Data Augmentation
-- **Transfusion** - PyTorch implementation of Transfusion models
+- **BLIP3o**
+- **Show-o**
+- **Janus**
+- **OmniGen2**
+- **Emu3**
+- **MMaDA**
+- **Transfusion**
 
-## Directory Structure
 
-```
-univlm/
-├── BLIP3o/           # BLIP-3 Omni implementation
-├── Show-o/           # Show and Tell Omni
-├── Janus/            # Janus multimodal model
-├── OmniGen2/         # Omni Generation 2
-├── Emu3/             # Enhanced Multimodal Understanding
-├── MMaDA/            # Multi-Modal Data Augmentation
-├── transfusion-pytorch/  # Transfusion PyTorch implementation
-├── diffusers/        # Diffusion models
-├── configs/          # Configuration files
-└── evaluation/       # Evaluation scripts and metrics
-```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
-- PyTorch
-- Transformers
-- Other dependencies (see individual model directories)
+- Conda (Miniconda or Anaconda)
+- CUDA 12.6 compatible GPU
 
 ### Installation
 
 1. Clone this repository with all submodules:
 ```bash
-git clone --recursive https://github.com/yourusername/univlm.git
+git clone --recursive https://github.com/weixingW/univlm.git
 cd univlm
 ```
 
@@ -52,15 +36,27 @@ cd univlm
 git submodule update --init --recursive
 ```
 
-2. Install dependencies for specific models (see individual README files in each subdirectory)
+2. Create the conda environment from `environment.yml`:
+```bash
+conda env create -f environment.yml
+```
+
+3. Activate the environment:
+```bash
+conda activate univlm
+```
+
+
+### Updating the Environment
+
+If `environment.yml` is updated, you can sync your environment with:
+```bash
+conda env update -f environment.yml --prune
+```
 
 ## Usage
 
 Each model implementation has its own directory with specific usage instructions. Please refer to the README files in each subdirectory for detailed usage examples.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
