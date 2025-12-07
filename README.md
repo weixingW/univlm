@@ -1,4 +1,4 @@
-# UniVLM - Universal Vision-Language Models
+# UniVLM - Unified Vision-Language Models
 
 A comprehensive collection of vision-language models and implementations for multimodal AI research and applications.
 
