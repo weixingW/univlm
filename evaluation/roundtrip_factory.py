@@ -4,46 +4,75 @@ Roundtrip Generator Factory
 
 This module provides a factory pattern for creating roundtrip generators
 for different model types.
+
+NOTE: We use lazy imports to avoid path conflicts between different models.
+Each model adds its own directory to sys.path, and importing all at once
+causes conflicts (e.g., Show-o's 'models' package vs MMaDA's 'models' package).
 """
 
 from typing import Dict, Type, Optional, List
 from roundtrip_base import RoundtripGenerator
-from blip3o_roundtrip import BLIP3oRoundtripGenerator
-from mmada_roundtrip import MMaDARoundtripGenerator
-from emu3_roundtrip import EMU3RoundtripGenerator
-from omnigen2_roundtrip import OmniGen2RoundtripGenerator
-from januspro_roundtrip import JanusProRoundtripGenerator
-from showo2_roundtrip import Showo2RoundtripGenerator
-from showo_roundtrip import ShowoRoundtripGenerator
+
+
+# Lazy import functions to avoid path conflicts between different models
+def _get_blip3o_generator():
+    from blip3o_roundtrip import BLIP3oRoundtripGenerator
+    return BLIP3oRoundtripGenerator
+
+def _get_mmada_generator():
+    from mmada_roundtrip import MMaDARoundtripGenerator
+    return MMaDARoundtripGenerator
+
+def _get_emu3_generator():
+    from emu3_roundtrip import EMU3RoundtripGenerator
+    return EMU3RoundtripGenerator
+
+def _get_omnigen2_generator():
+    from omnigen2_roundtrip import OmniGen2RoundtripGenerator
+    return OmniGen2RoundtripGenerator
+
+def _get_januspro_generator():
+    from januspro_roundtrip import JanusProRoundtripGenerator
+    return JanusProRoundtripGenerator
+
+def _get_showo2_generator():
+    from showo2_roundtrip import Showo2RoundtripGenerator
+    return Showo2RoundtripGenerator
+
+def _get_showo_generator():
+    from showo_roundtrip import ShowoRoundtripGenerator
+    return ShowoRoundtripGenerator
 
 
 class RoundtripGeneratorFactory:
     """Factory for creating roundtrip generators."""
     
-    _generators: Dict[str, Type[RoundtripGenerator]] = {
-        "blip3o": BLIP3oRoundtripGenerator,
-        "mmada": MMaDARoundtripGenerator,
-        "emu3": EMU3RoundtripGenerator,
-        "omnigen2": OmniGen2RoundtripGenerator,
-        "januspro": JanusProRoundtripGenerator,
-        "showo2": Showo2RoundtripGenerator,
-        "showo": ShowoRoundtripGenerator,
+    # Map model types to lazy import functions instead of classes directly
+    _generator_loaders: Dict[str, callable] = {
+        "blip3o": _get_blip3o_generator,
+        "mmada": _get_mmada_generator,
+        "emu3": _get_emu3_generator,
+        "omnigen2": _get_omnigen2_generator,
+        "januspro": _get_januspro_generator,
+        "showo2": _get_showo2_generator,
+        "showo": _get_showo_generator,
     }
     
     @classmethod
-    def register_generator(cls, model_type: str, generator_class: Type[RoundtripGenerator]):
-        """Register a new generator type."""
-        cls._generators[model_type] = generator_class
+    def register_generator(cls, model_type: str, generator_loader: callable):
+        """Register a new generator type with a lazy loader function."""
+        cls._generator_loaders[model_type] = generator_loader
     
     @classmethod
     def get_generator_class(cls, model_type: str) -> Type[RoundtripGenerator]:
-        """Get the generator class for a given model type."""
-        if model_type not in cls._generators:
+        """Get the generator class for a given model type (lazy loaded)."""
+        if model_type not in cls._generator_loaders:
             raise ValueError(
                 f"Unsupported model type: {model_type}. "
-                f"Supported types: {list(cls._generators.keys())}"
+                f"Supported types: {list(cls._generator_loaders.keys())}"
             )
-        return cls._generators[model_type]
+        # Lazy load the generator class
+        return cls._generator_loaders[model_type]()
     
     @classmethod
     def create_generator(cls, model_type: str, model_path: str, device: int = 0, seed: int = 42, config_path: Optional[str] = None) -> RoundtripGenerator:
@@ -54,7 +83,7 @@ class RoundtripGeneratorFactory:
     @classmethod
     def get_supported_models(cls) -> list:
         """Get list of supported model types."""
-        return list(cls._generators.keys())
+        return list(cls._generator_loaders.keys())
 
 
 # Convenience function
