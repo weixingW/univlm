@@ -85,3 +85,5 @@ vis-enc/
 amber_evaluation/outputs/
 amber_evaluation/slurm_output/
 amber_evaluation/run_amber_all_models.sh
+# local outputs
+generated_results/
