@@ -22,3 +22,12 @@
 [submodule "transfusion-pytorch"]
 	path = transfusion-pytorch
 	url = https://github.com/weixingW/transfusion-pytorch.git
+[submodule "Bagel"]
+	path = Bagel
+	url = https://github.com/ByteDance-Seed/Bagel.git
+[submodule "Tar"]
+	path = Tar
+	url = https://github.com/csuhan/Tar.git
+[submodule "UniTok"]
+	path = UniTok
+	url = https://github.com/FoundationVision/UniTok.git
