@@ -43,6 +43,14 @@ def _get_showo_generator():
     from showo_roundtrip import ShowoRoundtripGenerator
     return ShowoRoundtripGenerator
 
+def _get_bagel_generator():
+    from bagel_roundtrip import BagelRoundtripGenerator
+    return BagelRoundtripGenerator
+
+def _get_tar_generator():
+    from tar_roundtrip import TarRoundtripGenerator
+    return TarRoundtripGenerator
+
 
 class RoundtripGeneratorFactory:
     """Factory for creating roundtrip generators."""
@@ -56,6 +64,8 @@ class RoundtripGeneratorFactory:
         "januspro": _get_januspro_generator,
         "showo2": _get_showo2_generator,
         "showo": _get_showo_generator,
+        "bagel": _get_bagel_generator,
+        "tar": _get_tar_generator,
     }
     
     @classmethod
