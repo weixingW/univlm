@@ -31,3 +31,9 @@
 [submodule "UniTok"]
 	path = UniTok
 	url = https://github.com/FoundationVision/UniTok.git
+[submodule "UniTokMLLM"]
+	path = UniTokMLLM
+	url = https://huggingface.co/FoundationVision/unitok_mllm
+[submodule "Lumina-mGPT"]
+	path = Lumina-mGPT
+	url = https://github.com/Alpha-VLLM/Lumina-mGPT.git

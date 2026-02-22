@@ -51,6 +51,10 @@ def _get_tar_generator():
     from tar_roundtrip import TarRoundtripGenerator
     return TarRoundtripGenerator
 
+def _get_unitok_mllm_generator():
+    from unitok_mllm_roundtrip import UniTokRoundtripGenerator
+    return UniTokRoundtripGenerator
+
 
 class RoundtripGeneratorFactory:
     """Factory for creating roundtrip generators."""
@@ -66,6 +70,7 @@ class RoundtripGeneratorFactory:
         "showo": _get_showo_generator,
         "bagel": _get_bagel_generator,
         "tar": _get_tar_generator,
+        "unitok": _get_unitok_mllm_generator,
     }
     
     @classmethod
