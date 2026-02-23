@@ -28,7 +28,8 @@ from PIL import Image
 from roundtrip_base import RoundtripGenerator
 from easydict import EasyDict
 import torch.serialization
-torch.serialization.add_safe_globals([EasyDict])
+import argparse
+torch.serialization.add_safe_globals([EasyDict, argparse.Namespace])
 
 class TarRoundtripGenerator(RoundtripGenerator):
     def _initialize_models(self):
