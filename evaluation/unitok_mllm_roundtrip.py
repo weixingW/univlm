@@ -129,7 +129,7 @@ class UniTokRoundtripGenerator(RoundtripGenerator):
             torch.cuda.manual_seed_all(seed)
 
         # UniTok relies on a specific prompt format for generation
-        query = f"{prompt}"
+        query = f"Generate an image according to the following prompt: {prompt}"
         
         # Generate the image
         generated = self.solver.generate(
