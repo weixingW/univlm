@@ -87,6 +87,7 @@ class UniTokRoundtripGenerator(RoundtripGenerator):
         else:
             model_path_to_load = "Alpha-VLLM/Lumina-mGPT-7B-768-Omni"
 
+        target_res = 512 if "512" in model_path_to_load else 768
         original_cwd = os.getcwd()
         
         # Trick Python into thinking we are running the script locally so it finds ./ckpts
@@ -100,7 +101,7 @@ class UniTokRoundtripGenerator(RoundtripGenerator):
             self.solver = FlexARInferenceSolver(
                 model_path=model_path_to_load,
                 precision="bf16",
-                target_size=768, 
+                target_size=target_res,
             )
             self._loaded = True
             
@@ -128,7 +129,7 @@ class UniTokRoundtripGenerator(RoundtripGenerator):
             torch.cuda.manual_seed_all(seed)
 
         # UniTok relies on a specific prompt format for generation
-        query = f"Generate an image of 768x768 according to the following prompt: {prompt}"
+        query = f"{prompt}"
         
         # Generate the image
         generated = self.solver.generate(
