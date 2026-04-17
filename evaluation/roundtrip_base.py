@@ -393,7 +393,7 @@ def create_parser() -> argparse.ArgumentParser:
     """Create argument parser for roundtrip generation."""
     parser = argparse.ArgumentParser(description="Roundtrip generation with modular model support")
     parser.add_argument("model_path", help="Path to the model")
-    parser.add_argument("--model_type", required=True, choices=["mmada","blip3o", "mmada", "emu3", "omnigen2", "januspro", "showo2", "showo"], 
+    parser.add_argument("--model_type", required=True, choices=["mmada","blip3o", "emu3", "omnigen2", "januspro", "showo2", "showo", "bagel", "tar", "unitok"], 
                        help="Type of model to use")
     parser.add_argument("--config_path", default=None, help="Path to configuration file")
     parser.add_argument("--prompts_file", default="prompts.txt", help="Path to prompts file")
